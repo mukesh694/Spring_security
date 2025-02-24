@@ -1,0 +1,888 @@
+spring Security with spring boot 3.0
+
+Latest spring boot version :-- > 3.4.2 (in january 2025) 
+
+
+I have created one project on spring initizer then added two dependency :-- > 1 is web and 2 one is lombok
+
+================================================================
+3 dependency is Security
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+========================================================================
+
+
+and for jwt we will use below 3 dependency:-- >
+
+ <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.11.5</version>
+</dependency>
+
+
+     <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>0.11.5</version>
+    <scope>runtime</scope>
+</dependency>
+
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+    <version>0.11.5</version>
+    <scope>runtime</scope>
+</dependency>
+
+===========================================================================================
+if lombok is not working then in this casse we can make some changes :-- > like go to file then of intellige :-- >
+ setting :-->compliler :-- > annotation enabling :-- > tick the button and save 
+ 
+ 
+ ==============================
+ if we are getting there is another port is running .we can kill that port.
+ 
+ using below command :-- >
+ 
+ netstat -ano | findstr :8081    :-- > after executing this line in cmd ,will get output like below one 
+ 
+ -     TCP    0.0.0.0:8081             0.0.0.0:0              LISTENING       12345
+
+ then replace the pid(process id ) to kill  :-- > here is 12345   check below command  
+ 
+ taskkill /PID 12345 /F
+ 
+ ===============================================================
+ created one HomeController   
+ http://localhost:8080/home/user
+ 
+ 
+ I have created one api :-- > and now we want to secure this api ,so that not accessible by everybody.
+ this is not accessible by everybody.
+ 
+[
+  {
+    "userId": "48f8f567-215f-4496-9425-2ebd44b4e194",
+    "name": "mukesh@gmail.com",
+    "email": "Mukesh Singh"
+  },
+  {
+    "userId": "e4c38acb-75da-480e-ad3a-08d6de31f3f6",
+    "name": "pawan@gmail.com",
+    "email": "Pawan Tiwari"
+  },
+  {
+    "userId": "14a7675c-cb4e-47d5-b7be-8bc661dde929",
+    "name": "sonu@gmail.com",
+    "email": "Sonu Singh"
+  }
+] 
+ 
+ 
+ =======================================
+ Now for securing this :-- > we should use spring boot starter Security
+ 
+ <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+
+http://localhost:8080/login
+http://localhost:8080/logout
+
+
+Once we add the security then all our api will be secure :-- > we will get one login page :-- > user :-- > user and
+password :-- > 1ff285e6-69c7-43b0-8667-cc852e7a8e16(this password will get change every time when run application  and we will get in the console)
+Using generated security password: 1ff285e6-69c7-43b0-8667-cc852e7a8e16
+ 
+ this is by defualt password :-- > we can change the password or user i mean we cna customize the things 
+ 
+ 
+ this authentication is called formlogin this bydefault we are getting .We can use customize the things .
+=========================================================================== 
+ 
+Now customizing things according to our need :-- >
+
+in application.properties fiel i have added below detains.:--- >
+
+spring.application.name=jwtapplication
+spring.security.user.name=mukesh
+spring.security.user.password=mukesh
+
+now we will not see any password in the console.
+
+now we need to give user and password that we have given the applciaiton .properties file.
+
+===============================================================================================
+
+Configuring in some different way :-- >we need to remove the user nad password from application.properties.
+
+Create InMemory user with UserDetailService Bean
+Create UserDetailService bean and write the InMemory user implementation
+
+Create CustomConfig class and create bean and
+ also create two important bean PasswordEncoder and AuthenticationManager so that we can use later
+
+
+-===========================================================================================================================
+
+Authentication is used to authenticate someones identity, 
+whereas 
+
+authorization is a way to provide permission to someone to access a particular resource.
+
+Login+passoword (who you are )
+                     -----------authentication
+	permisions( what you are allowed to do) 
+	                 -----------this is authorization
+					 
+JWT :-- > json web token
+
+https://shiva-rrad.medium.com/understanding-the-different-methods-of-authentication-and-authorization-2534de1a77f6
+
+JWT, which stands for JSON Web Token, is an open standard for securely sharing JSON data between parties.
+
+JWTs are self-contained, stateless tokens that carry all the necessary information for authentication and authorization within the token itself
+
+
+
+jwt is combination of 3 things :-- > header :--> in header there will be Algo +Tokentype 
+                                   2.Payload:--> data will be here 
+								   3. Signature :-- > verification services:-E(H)  and E(P) and KEY
+							in 3 chijo ko compile krke token banaya jayega.
+							aur ye token clinet ko de diya jayega aur jb ye token client ke pas jayega ,aur fir agar o reach krta hai fir 
+							usse token mangenge aur fir token se detail check krenge if it is right then we can give the permission.
+							
+							
+							
+JWT Authentication flow :-- >
+	
+	
+JWT stands for JSON Web Token. It is a compact, URL-safe means of representing claims to be transferred between two parties.
+ It is used to securely transmit information between parties in a JSON format. JWTs can be used to authorize access to resources and services.
+
+JWT authorization is a stateless mechanism for authentication and authorization that eliminates the need for sessions and cookies. 
+It provides a secure means of transmitting information, because a JWT is digitally signed using a secret key known only to the server.
+ This ensures that the information contained in the JWT is not tampered with or altered during transmission.
+ 
+ ==================================================**********************************============================================================
+ 
+ How Does JWT Authorization Work? 
+ 
+JWT authorization works by encoding information into a JSON web token (JWT), which is then passed between the client and server.
+ The steps involved in a typical JWT authorization flow are as follows:
+
+Authentication: The client sends the user’s credentials to the server, which authenticates the user and generates a
+                 JWT containing information about the user.
+				 
+Issuing the Token: The server sends the JWT back to the client, which stores it for future use.
+
+Sending the Token: When the client wants to access a protected resource on the server, it sends the JWT in the Authorization header
+                   of the HTTP request.
+Verifying the Token: The server receives the request and verifies the JWT by checking its signature using the secret key that was used to sign it.
+                     If the JWT is valid, the server extracts the information contained in it and uses it to determine what actions the user 
+					   is authorized to perform.
+
+Authorizing the Request: If the user is authorized to access the resource, the server returns the requested data. If the user is not authorized, 
+                         the server returns an error message.
+						 
+JWT authorization enables secure and efficient communication between the client and server, as the server does not need to store any session information to keep track of the user’s authentication status. This makes it ideal for use in microservice architectures and other decentralized systems,
+ where multiple independent components need to communicate with each other in a secure manner.
+ 
+ 
+======================================================***************************************===================================================
+General Steps for Implementing JWT Authorization in Your Application :===============>
+
+Here are the main steps you will need to implement JWT authorization :--- >
+
+1. Set up a server-side application:===>  You’ll need a backend application that will generate and verify JWTs.
+                                     You can use any server-side language and framework, such as Node.js and Express.
+
+2. Install the necessary packages:===> You’ll need to install a JWT library for your server-side language. For example, if you’re using Node.js, 
+                                   you can install the jsonwebtoken library.
+
+3. Implement authentication:==> Your server-side application will need to implement authentication to verify the user’s credentials.
+                             You can use methods like email/password authentication or social media authentication.
+							 
+4. Implement authentication:===>  Your server-side application will need to implement authentication to verify the user’s credentials. 
+                                  You can use methods like email/password authentication or social media authentication.	
+
+5. Send the JWT to the client:===>  The server will send the JWT to the client, which will store it for future use.	
+
+6. Send the JWT with every request:===>  When the client wants to access a protected resource on the server, it will send the JWT in
+                                             the Authorization header of the HTTP request.
+
+
+7. Verify the JWT on the server:===> The server will receive the request and verify the JWT by checking its signature using the secret 
+                                      key that was used to sign it. If the JWT is valid, the server will extract the information contained in it 
+				                      and use it to determine what actions the user is authorized to perform.											 
+
+8. Authorize the request:==========> If the user is authorized to access the resource, the server will return the requested data.
+                                                      If the user is not authorized, the server will return an error message.
+
+
+Take screen shot of durgesh video flow chart of works of JWT.
+
+
+Now steps to implement the JWT :============>
+
+1. makes sure that security and jjwt and jjwt api and jackson dependency added in the pom.xml file
+
+2. Create Class JWTAthenticationEntryPoint that implement AuthenticationEntryPoint interface. Method of this class is called whenever
+                        as exception is thrown due to unauthenticated user trying to access the resource that required authentication.
+
+@Component
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        PrintWriter writer = response.getWriter();
+        writer.println("Access Denied !! " + authException.getMessage());
+    }
+}
+
+
+
+3.Create JWTHelper  class This class contains method related to perform operations with jwt token like generateToken, validateToken etc.
+
+
+package com.jwt.jwtapplication.security;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtHelper {
+        
+    //requirement :
+        public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+
+        //    public static final long JWT_TOKEN_VALIDITY =  60;
+        private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";
+
+        //retrieve username from jwt token
+        public String getUsernameFromToken(String token) {
+            return getClaimFromToken(token, Claims::getSubject);
+        }
+
+        //retrieve expiration date from jwt token
+        public Date getExpirationDateFromToken(String token) {
+            return getClaimFromToken(token, Claims::getExpiration);
+        }
+
+        public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+            final Claims claims = getAllClaimsFromToken(token);
+            return claimsResolver.apply(claims);
+        }
+
+        //for retrieveing any information from token we will need the secret key
+        private Claims getAllClaimsFromToken(String token) {
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        }
+
+        //check if the token has expired
+        private Boolean isTokenExpired(String token) {
+            final Date expiration = getExpirationDateFromToken(token);
+            return expiration.before(new Date());
+        }
+
+        //generate token for user
+        public String generateToken(UserDetails userDetails) {
+            Map<String, Object> claims = new HashMap<>();
+            return doGenerateToken(claims, userDetails.getUsername());
+        }
+
+        //while creating the token -
+        //1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
+        //2. Sign the JWT using the HS512 algorithm and secret key.
+        //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
+        //   compaction of the JWT to a URL-safe string
+        private String doGenerateToken(Map<String, Object> claims, String subject) {
+
+            return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+                    .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                    .signWith(SignatureAlgorithm.HS512, secret).compact();
+        }
+
+        //validate token
+        public Boolean validateToken(String token, UserDetails userDetails) {
+            final String username = getUsernameFromToken(token);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        }
+
+
+    }
+
+
+
+
+}
+
+4) Create JWTAuthenticationFilter that extends OncePerRequestFilter and override method and write the logic to check the token that is comming in header. We have to write 5 important logic
+
+Get Token from request
+Validate Token
+GetUsername from token
+Load user associated with this token
+set authentication
+
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
+    @Autowired
+    private JwtHelper jwtHelper;
+
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+//        try {
+//            Thread.sleep(500);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+        //Authorization
+
+        String requestHeader = request.getHeader("Authorization");
+        //Bearer 2352345235sdfrsfgsdfsdf
+        logger.info(" Header :  {}", requestHeader);
+        String username = null;
+        String token = null;
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+            //looking good
+            token = requestHeader.substring(7);
+            try {
+
+                username = this.jwtHelper.getUsernameFromToken(token);
+
+            } catch (IllegalArgumentException e) {
+                logger.info("Illegal Argument while fetching the username !!");
+                e.printStackTrace();
+            } catch (ExpiredJwtException e) {
+                logger.info("Given jwt token is expired !!");
+                e.printStackTrace();
+            } catch (MalformedJwtException e) {
+                logger.info("Some changed has done in token !! Invalid Token");
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+
+        } else {
+            logger.info("Invalid Header Value !! ");
+        }
+
+
+        //
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+
+            //fetch user detail from username
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            Boolean validateToken = this.jwtHelper.validateToken(token, userDetails);
+            if (validateToken) {
+
+                //set the authentication
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+            } else {
+                logger.info("Validation fails !!");
+            }
+
+
+        }
+
+        filterChain.doFilter(request, response);
+
+
+    }
+}
+
+
+
+ 
+ 
+ ==================================================================================================================
+ 5. 5) Configure spring security in configuration file:
+
+
+ 
+ 
+ package com.jwt.jwtapplication.securityconfig;
+
+import com.jwt.jwtapplication.security.JwtAuthenticationEntryPoint;
+import com.jwt.jwtapplication.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+public class SecurityConfig {
+
+
+    @Autowired
+    private JwtAuthenticationEntryPoint point;
+    @Autowired
+    private JwtAuthenticationFilter filter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/home/**")
+                        .authenticated()
+                        .requestMatchers("/auth/login")
+                        .permitAll().anyRequest().authenticated())
+                .exceptionHandling(ex->ex.authenticationEntryPoint(point))
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+;
+        http.addFilterBefore(filter,UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+}
+
+ 
+ 
+ 
+ ************************************************************************************************************************************
+ 6) Create JWTRequest and JWTResponse to receive request data and send Login success response.
+ 
+   created class JwtRequest and JWTResponse
+   
+ =====================================================================************************************************************************
+ 7)  Create login api to accept username and password and return token if username and password is correct.
+ 
+ 
+ https://www.learncodewithdurgesh.com/blogs/jwt-authentication-with-spring-boot-31tz
+ 
+ 
+ 
+ 
+ 
+ ======================================================Medium=====================================================
+ https://shiva-rrad.medium.com/understanding-the-different-methods-of-authentication-and-authorization-2534de1a77f6
+ 
+ Authentication :-- > AuthN :-> authentication is the process of verifying the identity of a user or service.
+
+ Atuhentication processes typically use one of the three methods to verify an idiviusals identity.
+ 
+  something the user knows (such as password and security questions),
+  something the user has (such as physical devices like USB security token or mobile phones),
+  something the use is (such as biiometric authentication or certificatation based authentication)
+  
+  
+  Authorization :==== >Authorization is a security process that determines the level of access granted to a user or service. 
+                       It is used in technology to give permission for accessing data or performing a specific action.
+                        Authentication and authorization both rely on identity.  
+						
+Authentication verifies the identity before granting access, while authorization uses the verified identity to control access.
+
+There are several types of authorization mechanisms :===>
+
+1. Role based authorization
+2. Attribute based authorization
+3. Rule-based authorization
+4. Context based authorization
+
+
+1. Role based authorization :=> grants access to resources based on the role or position of the user within an organization.
+                               For example, an employee with the role of manager may have access to certain resources and data 
+							    that are not available to other employees.
+
+				
+2. Attribute-based authorization:=> grants access to resources based on a set of attributes associated with the user or resource. For example,
+                                  access to a file may be granted only to users who have a specific security clearance level or who are
+ 								  members of a particular department.	
+
+3.  Rule-based authorization :==> grants access to resources based on a set of predefined rules. For example,
+                                  a rule may specify that only users who are currently logged in during business hours 
+								   can access a particular resource.
+
+4.  Context-based authorization:===>grants access to resources based on the context in which the request is made. For example,
+                                 access to a resource may be granted only if the request is made from a specific location or device.
+
+================================================================================================================
+AuthN Method :===> Lets delve into various method methods of authentication. 
+
+Some commonly used authentication strategies include :===>
+
+Basic Authentication  ==> Basic Authentication is a simple method of authentication where the user provides their username and
+                          password in the HTTP header of each request. The server verifies the credentials and grants access if they are valid. 
+                          This HTTP-based approach uses a Base64 format to encode usernames and passwords, which are stored in the HTTP header.
+								  
+						
+						
+				With Basic Authentication, login credentials are sent in the request headers with each request.
+				Usernames and passwords are concatenated together using a : symbol to form a single string, which is then encoded using base64. 
+				This method is stateless and suitable for API calls along with simple auth workflows that do not require persistent sessions.		
+						
+						
+						
+Pros:===> Faster authentication due to fewer operations involved.
+          Easy to implement.
+          Supported by all major browsers.
+
+Cons:==> Base64 is not the same as encryption and can be easily decoded since it’s sent in plain text. HTTPS/SSL is essential.
+         Credentials must be sent with every request.
+         Users can only be logged out by rewriting the credentials with an invalid one.
+						
+					
+USER -> SERVER: GET /protected-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Basic realm="Restricted Area"
+USER -> SERVER: GET /protected-resource, Authorization: Basic base64(username:password)
+USER <- SERVER: 200 OK
+USER -> SERVER: GET /other-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Basic realm="Restricted Area"
+USER -> SERVER: GET /other-resource, Authorization: Basic base64(username:password)
+USER <- SERVER: 200 OK
+
+
+In the diagram, the user requests a protected resource from the server (“/protected-resource”).
+
+The server responds with a 401 Unauthorized status code and a WWW-Authenticate header that indicates the use of Basic Authentication.
+
+The user sends a second request for the same resource, including an Authorization header with their base64-encoded username and password.
+The server verifies the credentials and grants access to the protected resource with a 200 OK status code.
+
+If the user requests a different protected resource (“/other-resource”), the server will respond with a 401 
+   Unauthorized status code and a WWW-Authenticate header,
+ and the user must include the Authorization header with their credentials for each protected resource they request.					
+						
+						
+Session-Based Authentication:=======> 
+					            Session-based authentication is introduced to address the problem of HTTP protocol being stateless,
+                                which requires the user to authenticate themselves repeatedly for each new request. In session-based authentication,
+                                the server generates a unique token upon successful authentication and sends it to the client,
+                                which stores it in a cookie and sends it back with each subsequent request.
+                                The server uses this token to authenticate the user and returns the requested data.
+                                Logging out involves deleting the session ID stored in the cookie.						
+	
+Pros:==> 
+
+Simple implementation: Session-based authentication is relatively simple to implement and does not require complex cryptographic operations.
+
+Scalability: Sessions can be scaled horizontally across multiple servers in a load-balanced environment, making it easy to handle large numbers of simultaneous users.
+
+Security: By using a session ID stored in a cookie, session-based authentication can protect against cross-site request forgery (CSRF) attacks, which occur when an attacker sends unauthorized requests to a website on behalf of an authenticated user.
+
+Logout functionality: Session-based authentication makes it easy to implement a logout functionality as it only requires deleting the session ID stored in the cookie.	
+						
+  
+Cons :=== >
+
+Session fixation attacks: Session fixation attacks occur when an attacker sets the session ID before the user logs in, thereby allowing the
+ attacker to hijack the user’s session.
+
+Session hijacking attacks: Session hijacking attacks occur when an attacker steals the user’s session ID and uses it 
+to gain unauthorized access to the user’s account. To mitigate this risk, developers should use secure cookies and 
+implement measures to prevent session hijacking, such as IP tracking and reauthentication after a certain period of inactivity.
+
+Session management: Managing user sessions can be a challenge, especially when the server is required to maintain a
+ session store to keep track of authenticated users.
+
+Stateful servers: Session-based authentication requires servers to be stateful, which means that they need to store
+ session information on the server-side. This can be a performance bottleneck for high-traffic applications.
+
+Mobile applications: Session-based authentication can be challenging to implement in mobile applications, where cookies are not
+ always supported, and it is difficult to prevent unauthorized access to session information stored on the device.
+
+Session-based authentication has scalability limitations, especially with regards to session management as sessions are 
+usually stored in memory. When servers are replicated to multiple instances, all user sessions must also be replicated
+ to each server, making it challenging to handle a large number of concurrent users. To overcome this issue, developers often
+ use specialized session management tools or third-party services to centralize session management and distribute session data
+ across multiple servers. Distributed caching technologies such as Redis or Memcached can also be used to store session data in a
+ centralized cache accessible by multiple servers, reducing the need for replication and simplifying session management. However,
+ having a dedicated server for session management may not always be feasible for small to mid-sized applications. In such cases, 
+ developers should consider other authentication methods that better suit their needs. Therefore, developers should carefully evaluate
+ the scalability requirements of 
+their application and choose an appropriate authentication method accordingly.
+
+USER -> SERVER: GET /
+USER <- SERVER: 200 OK, HTML form for login
+USER -> SERVER: POST /login, username=john, password=secret
+USER <- SERVER: 302 Found, Set-Cookie: session_id=abc123, Location: /dashboard
+USER -> SERVER: GET /dashboard, Cookie: session_id=abc123
+USER <- SERVER: 200 OK, HTML page with user's dashboard
+USER -> SERVER: GET /settings, Cookie: session_id=abc123
+USER <- SERVER: 200 OK, HTML page with user's settings
+USER -> SERVER: POST /settings, Cookie: session_id=abc123, new_email=john@example.com
+USER <- SERVER: 200 OK, HTML page with updated users settings
+USER -> SERVER: POST /logout, Cookie: session_id=abc123
+USER <- SERVER: 302 Found, Set-Cookie: session_id=; expires=Thu, 01-Jan-1970 00:00:01 GMT, Location: /
+USER -> SERVER: GET /
+USER <- SERVER: 200 OK, HTML form for login
+
+In this updated diagram, the user starts by sending a GET request to the server for the root URL (“/”). The server responds with an HTML form for login.
+
+The user then sends a POST request to the server with their login credentials, and the server responds with a redirect to the user’s dashboard page, along with a session ID in a cookie.
+
+The user sends subsequent requests for protected resources (“/dashboard” and “/settings”) with the session ID in the cookie. The server verifies the session ID and grants access to the requested resources.
+
+When the user updates their settings, they send a POST request to the server with the updated data, and the server responds with a confirmation message.
+
+Finally, when the user logs out, they send a POST request to the server, and the server responds with a redirect to the login page, along with a request to delete the session ID from the cookie.
+
+
+ 
+ 
+=================================================================
+3rd :-- > token based Authentication :-- > 
+
+     Token-based authentication is a popular method, particularly with the emergence of single-page applications,
+ web APIs, and IoT devices. This authentication method is stateless, meaning that no user information needs to be stored on the server-side. 
+ Instead of usernames and passwords, tokens are used for authentication. When a user provides their credentials,
+ the server generates a token which can be exchanged between the client and server to authenticate the user. 
+ Tokens contain a unique identifier for the user and an expiration date/time. They do not need to be saved on the server-side as they can be
+ validated using their signature,making requests faster without the need for database lookups.
+ 
+ Token-based authentication works well for microservices architecture, where multiple services require authentication.
+ It’s easy to configure how each service handles the token and token secret. Despite its benefits, there are some downsides to
+ token-based authentication. Storing the token on the client-side can lead to XSS attacks via localStorage or CSRF attacks via cookies.
+ Tokens cannot be deleted, only expired. If leaked, an attacker can misuse the token until it expires. To mitigate these risks,
+ it’s important to set short expiry times and use refresh tokens that automatically issue new tokens at expiry. A blacklisting database
+ can also be created to delete tokens,but this adds extra overhead and introduces state to the microservice architecture.
+ 
+ 
+ JSON Web Tokens (JWT) are the most commonly used tokens for this mechanism because of their versatility and ease of use. 
+ Other examples of token-based authentication include SWT (Simple Web Tokens), OAuth, SAML, and OpenID.
+ 
+ Overall, token-based authentication offers improved security, scalability, and flexibility over traditional authentication methods. However, 
+ it’s essential to consider the potential risks and implement proper measures to avoid security breaches.JWT Authentication
+ 
+ 
+ USER -> SERVER: GET /protected-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Bearer realm="Restricted Area"
+USER -> SERVER: POST /login, username=john, password=secret
+USER <- SERVER: 200 OK, { "access_token": "abc123" }
+USER -> SERVER: GET /protected-resource, Authorization: Bearer abc123
+USER <- SERVER: 200 OK
+USER -> SERVER: GET /other-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Bearer realm="Restricted Area"
+USER -> SERVER: GET /other-resource, Authorization: Bearer abc123
+USER <- SERVER: 200 OK
+
+In this diagram, the user sends a request to the server for a protected resource (“/protected-resource”). The server responds with a
+ 401 Unauthorized status code and a WWW-Authenticate header that indicates the use of bearer token authentication.
+
+The user then sends a POST request to the server to authenticate with their username and password. The server responds with a 200 
+OK status code and an access token.
+
+The user includes the access token in the Authorization header of subsequent requests to protected
+ resources (“/protected-resource” and “/other-resource”). The server verifies the token and grants access to the requested resources.
+
+If the user requests a different protected resource (“/other-resource”), the server will again respond with a 401 Unauthorized status code
+ and a WWW-Authenticate header. The user must include the access token in the Authorization header for each protected resource they request.
+
+Note that this is a simplified example, and the actual flow of token-based authentication can vary depending on the specific
+ implementation and the use of additional security measures such as token expiration and refresh.
+ 
+ 
+ USER -> SERVER: GET /protected-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Bearer realm="Restricted Area"
+USER -> SERVER: POST /login, username=john, password=secret
+USER <- SERVER: 200 OK, { "access_token": "abc123", "expires_in": 3600, "refresh_token": "def456" }
+USER -> SERVER: GET /protected-resource, Authorization: Bearer abc123
+USER <- SERVER: 200 OK
+… user interacts with protected resource …
+USER -> SERVER: GET /other-resource
+USER <- SERVER: 401 Unauthorized, WWW-Authenticate: Bearer realm="Restricted Area"
+USER -> SERVER: POST /token, grant_type=refresh_token, refresh_token=def456
+USER <- SERVER: 200 OK, { "access_token": "ghi789", "expires_in": 3600, "refresh_token": "jkl012" }
+USER -> SERVER: GET /other-resource, Authorization: Bearer ghi789
+USER <- SERVER: 200 OK
+
+
+
+In this diagram, after the user successfully logs in and receives an access token, the server also returns an expiration time and a refresh token.
+
+The user interacts with the protected resource for a period of time, until the access token expires. When the user requests a new
+ resource (“/other-resource”), the server responds with a 401 Unauthorized status code and a WWW-Authenticate header.
+
+The user then sends a POST request to the server with the refresh token, and the server responds with a new access token and 
+a new refresh token. The user can use the new access token to access the protected resource (“/other-resource”),
+ and the new refresh token can be used in the future to obtain a new access token.
+
+Note that this is just one possible implementation of token expiration and refresh, and different systems may use different methods or parameters.
+
+
+
+SWT and JWT  :===>
+
+Simple Web Tokens (SWT) and JSON Web Tokens (JWT) are two token-based authentication protocols used to securely exchange information
+ between web applications and services. SWT is specifically designed for lightweight, web-based scenarios and does not 
+ support payload encryption or digital signatures like JWT does. The format of an SWT token consists of three parts: a header,
+ a payload, and a signature. The header contains metadata about the token, the payload includes claims about the authenticated user or client,
+ and the signature is a cryptographic hash
+ signed with a shared secret or asymmetric key.
+ 
+
+SWT can be useful in scenarios where a lightweight and simple token format is sufficient for authentication and authorization, 
+and where payload encryption is not required. 
+
+An example of such a scenario is a company that provides a web API allowing third-party developers to access its services.
+ The API uses SWT as the token format for authentication. When a user or client requests access to the API, the API issues an
+ SWT token containing information about the user or client, such as their identity, authorization level, and access rights.
+ The user or client then includes the SWT token in each subsequent request to the API, 
+allowing the API to verify the token signature and authenticate the user or client.
+ The API can use the claims in the token payload to authorize the user or client to access the requested services. 
+ 
+ 
+ SSO (Single Sign-On)  :=======>
+ 
+ Single sign-on (SSO) is a modern technology that enables users to access multiple applications or systems by logging in with a single
+ set of credentials. With SSO, users are not required to enter their username and password for each application they use. Instead, 
+ they can sign in once and automatically access all authorized applications without having to re-enter their credentials. 
+ This reduces the need for remembering multiple usernames and passwords, enhancing user experience and efficiency when working with multiple
+ applications.
+
+
+An SSO process flow example involves the following steps:
+
+1. The user accesses the first Google product and receives a Google Accounts-generated cookie.
+
+2. When the user navigates to another Google product, they are redirected to Google Accounts.
+
+3. Google Accounts sees that the user already has an authentication-related cookie, so it redirects them to the requested product.
+
+Simply put, SSO can be described as “user logs in once and gains access to all systems without being prompted to log in again at each of them”.
+ This relies on three different entities who trust each other directly and indirectly — the user, identity provider (IdP),
+ and service provider (SP).
+ 
+ 
+ To gain access to an SP, a user enters a password (or some other authentication method) to their IdP. The user trusts the IdP,
+ while the SP trusts the IdP. Therefore,
+ the SP can also trust the user.
+ 
+ 
+ There are several methods for implementing the SSO :===>
+ 1. Federated SSO
+ 2.Enterprise SSO
+ 3. Web SSO
+ 4. Kerberos SSO:
+ 5. Mobile SSO
+ 
+ =========================================================
+ 
+                        OAuth
+ 
+ 
+ 
+ OAUTH  :===== > OAuth (Open Authorization) is a protocol that allows users to grant third-party applications access to their resources
+                without sharing their credentials such as username and password. It provides users with a secure way to authorize applications
+                to access their resources on their behalf.
+				
+		OAuth is widely used in web and mobile applications to provide access to APIs, social media platforms, and other web-based services.
+ 
+ 
+ Here’s how it works:
+
+Here’s how it works:
+
+1. A user attempts to access a protected resource on a service provider’s website or app using a third-party application, initiating the OAuth process.
+
+2. The third-party application requests authorization from the user to access specific resources such as profile data, email address, or photos on their behalf.
+
+3. If the user agrees, the third-party application receives an authorization grant, which represents the user’s permission to access the requested resources.
+
+4. The third-party application uses the authorization grant to obtain an access token from the service provider’s authorization server.
+
+5. The access token is then used by the third-party application to access the user’s resources on the service provider’s behalf.
+
+A real-life example of OAuth in action is when a user wants to sign up for a new web application using their Google account. Here’s how the flow would work:
+
+1. The user attempts to sign up for the new application using their Google account credentials through the client (the new application).
+
+2. The client redirects the user to Google’s authorization endpoint to obtain permission for accessing the user’s Google account data.
+
+3. The user authenticates with Google and grants permission for the client to access their profile data.
+
+4. The client requests an access token from Google’s authorization server using the authorization grant obtained from the previous step.
+
+5. Google issues an access token and refresh token to the client, which can be used to access the user’s Google account data on behalf of the user.
+
+With this access token, the client can then access the user’s Google account data, such as their name, email address, or contacts, without having to store or share the user’s Google account credentials. This makes it more secure and convenient for users who want to use their existing accounts to sign up for new applications.
+
+OAuth has gone through several versions, each with different features and improvements. OAuth 1.0 was the first version released in 2007, which uses a signature-based authentication mechanism that requires the client to sign each request with a shared secret key. OAuth 1.0a was released in 2009, which addressed some security issues and added new features, such as support for mobile devices. OAuth 2.0 is the current version and was released in 2012. It has a simpler and more flexible architecture compared to previous versions, allowing developers to use new authorization flows, such as implicit and client credentials flows. However, OAuth 2.0 has been criticized for being less secure than OAuth 1.0, as it allows for the use of bearer tokens, which can be stolen and used to access user data.
+
+OAuth 2.1 is the latest version of the OAuth 2.0 specification, which was released in September 2021. It is a refinement of the OAuth 2.0 protocol and aims to improve the security, privacy, and usability of OAuth 2.0. Some key changes in OAuth 2.1 include more prescriptive security guidance for implementers, elimination of insecure practices, stronger client authentication methods, and improved user consent.
+
+Some popular apps that use OAuth include Twitter (OAuth 1.0a), Facebook, Google, LinkedIn, and Microsoft (OAuth 2.0).
+
+===========================================================================================================
+Open-ID
+OpenID is an open standard that allows users to authenticate themselves to different web applications and services using their existing
+ online identities. OpenID enables users to log in to an application using their preferred online identity, such as their Google, Facebook,
+ or Twitter account, rather than creating a new account specifically for the application.
+
+Let’s say you want to sign in to an online marketplace using your Facebook account. The marketplace can use OpenID to authenticate you
+ and retrieve your basic profile information from Facebook, such as your name and profile picture.
+
+Here’s how it works:
+
+1. You click the “Sign in with Facebook” button on the marketplace’s login page.
+
+2. The marketplace redirects you to Facebook’s authentication server, where you are prompted to log in to your Facebook account.
+
+3. If you successfully log in, Facebook generates an ID token and sends it back to the marketplace.
+
+4. The marketplace can then use the ID token to authenticate you and retrieve your basic profile information, such as your name and
+ profile picture, on your behalf.
+
+OpenID is built on top of OAuth2.0, which provides the authorization framework for accessing protected resources. OpenID Connect
+ is the latest version of OpenID, which provides additional authentication features and improvements over the original protocol.
+
+In summary OAUTH2.0 is an authorization framework, while Open ID is mainly used for authentication.
+
+OAuth enables third-party clients to access protected resources (eg. Facebook or Google contacts) with the resource owner’s consent
+ through the use of access tokens issued by an authorization server (Facebook or Google Auth server). OpenID, on the other hand,
+ allows users to use their login credentials from an OpenID provider (eg. Google) to log in to another application through the use of an ID token.
+
+MFA and 2FA
+MFA (Multi-Factor Authentication) and 2FA (Two-Factor Authentication) are security measures that require users to provide multiple forms of 
+authentication in order to access an account or system. Both MFA and 2FA add an extra layer of security beyond just a username and password,
+ which can be easily compromised.
+
+MFA typically requires the user to provide at least two different types of authentication factors from three categories:
+
+something the user knows (such as a password), something the user has (such as a mobile phone or token generator),
+ something the user is (such as a fingerprint or facial recognition).
+
+2FA is a type of MFA that requires the user to provide two different types of authentication factors from two categories. Typically,
+ this involves something the user knows (such as a password) and something the user has (such as a mobile phone or token generator).
+
+Here’s how 2FA typically works:
+
+1. The user enters their username and password to log in to an account.
+
+2. The system then prompts the user to enter a second authentication factor such as a code generated by a mobile app or sent via SMS.
+
+3. The user enters the code to complete the login process.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
