@@ -1,0 +1,165 @@
+Spring Security 
+
+Spring security gives us a set of implemenation that we can implement in our application.
+
+OAuth is an open-standard authorization protocol that allows third party applications 
+to access user data from a service provider without sharing password.
+
+JWT is JSON web token ,a compact ,url safe means of representing claims to be transferred between two parties.
+
+
+ OAuth is used for authorization, 
+ 
+ while JWT is used for authentication and exchanging information.
+ 
+ Security: OAuth is a secure way to manage authorization flows, while JWT is a lightweight and self-contained token.
+ 
+ Authentication: Process of Identifying the person trying to access the application.
+ Authorization: Process of Identifying if the person is allowed to do this operation.
+ 
+ 
+Authentication  :--> 	
+1. It is a process used to verify users identity.  
+2. Checks credentials like username and password provided by user against stored credentials.
+3. it is fast.
+
+Authorization :--> 
+
+1. It determines that within the application, which task a user is allowed to do.
+2. To determine resources,it uses users identity and pre-defined access control rules.
+3. After authentication, it authorizes.
+
+Authentication :-- > who are you  
+Authorization :-- > what can we do 
+
+=======================================================
+intro 
+Security 
+CSRF :-- > cross site request forgery
+user registration and login 
+jwt 
+implement jwt 
+jwt microservices and application
+login sso
+
+eg :-- > when we try to login into gmail then it will ask for sign up then we will log in and when we will finally giving user and password 
+then aftr authentication it generate SESSIONID  and that sesssion store in the browser.Once the sessionId created and it is autheticated then we will 
+able to check inbox, compose ......ALLOCATE
+
+once we logout session id will remove.
+
+Session id will different for chrome and for egde.
+
+============================
+I have created springboot application and added only spring web dependency. and run the applicaiton.
+
+when hit the postman :--so didn't get any access issue and got the output.
+
+
+we have added the spring security dependncy in pom.xm
+
+once we add the spring security :-- > and we wil hit the localhost:8080 :-- > we will see a login page saying username and password.
+
+when we run the application we will get the password in console and that will be like 
+
+Using generated security password: 2f624b13-9530-4b68-9d88-e085899b7117
+
+we can run the localhost:8080 :--> we will get the sign in :-- > user , password in console.
+
+and 
+
+and if we try to hit the get method in postman we will not get any value ,So we need to fill the basic details :-- >
+ like go to authorization:-basic auth :-- > then user and password
+ 
+ ===========================================
+http://localhost:8080/login
+http://localhost:8080/logout
+
+
+how the spring security works :-- > after loging into page :-- > it create the session id :-- >inspect:-- > console :-- >
+ then we will hit the api:-- then we will see the jsessionid.and cookies.
+ 
+ ===============================================================https://medium.com/@minadev/authentication-and-authorization-with-spring-security-bf22e985f2cb
+ Authentication Mechanisms:
+We have two authentication mechanisms: stateful and stateless.
+
+Stateful Authentication (Cookie/Session Based Authentication):
+
+This is the default and traditional method for handling user authentication. 
+In this approach, the backend is responsible for creating, storing the session ID, and verifying the user’s identity.
+
+Here is how it works: The server creates a session ID upon a user’s login request, storing it in either a database or an in-memory cache on the server. This session ID is then stored on a cookie in the user’s browser. With each subsequent request, the server receives the cookie containing the session ID and validates the user’s identity by comparing it with the corresponding session information stored on the server.
+
+
+Stateful disadvantages:
+
+Scalability: This approach might have challenges in highly scalable systems, as it requires server-side storage for session data.
+
+Complexity: Implementing and managing session data, can add complexity to the system.
+
+
+===================================================================================================================================
+
+OAuth :-- > OAuth is open Authorization process enables user to authenticate themselves with third party service provider.
+             OAuth stands for  open authorization protocol. This protocol allows you to access the client applicaiton on HTTP for 3rd party provider github,Facebook
+
+Spring cloud :-- > spring cloud is integration software used to integrate the external systems.
+
+Stateless Authentication:
+Stateless authentication using tokens (e.g., JWT) that are gaining popularity, especially in modern Microservices and distributed systems.
+
+Token-Based Authentication:
+Issuing a token (e.g., JWT) upon successful authentication.
+The token is sent to the server with each request for authorization.
+It is Stateless and scalable.
+
+there is image :-- > paste here from above LINK
+
+
+
+====================================it is part of stateless
+JSON Web Token (JWT)
+JWT represents claims between two parties. JWT has a compact format, making them easy to transform over the network.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
